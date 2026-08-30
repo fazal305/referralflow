@@ -1,15 +1,23 @@
 import { sql } from '../_lib/db.js'
 
-// Public endpoint: the only write path available to anonymous visitors.
-// Validates the code, enforces a submission rate limit, and inserts only
-// lead-facing fields into `referrals` — never reads or exposes client data
-// beyond what get-referrer already returns.
-export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    res.status(405).json({ error: 'Method not allowed.' })
+// Public endpoints: never require auth, never expose private client fields.
+
+async function getReferrer(req, res, code) {
+  const [row] = await sql`
+    select c.name as client_name, rc.is_active as code_is_active
+    from referral_codes rc
+    join clients c on c.id = rc.client_id
+    where rc.code = ${code}
+    limit 1
+  `
+  if (!row) {
+    res.status(404).json({ error: 'Referral link not found.' })
     return
   }
+  res.status(200).json(row)
+}
 
+async function submitReferral(req, res) {
   const {
     code,
     leadName,
@@ -66,4 +74,27 @@ export default async function handler(req, res) {
   `
 
   res.status(201).json({ id: referral.id })
+}
+
+export default async function handler(req, res) {
+  const segments = [].concat(req.query.segments || [])
+  const [first, second] = segments
+
+  if (first === 'referrer' && second) {
+    if (req.method !== 'GET') {
+      res.status(405).json({ error: 'Method not allowed.' })
+      return
+    }
+    return getReferrer(req, res, second)
+  }
+
+  if (first === 'submit-referral') {
+    if (req.method !== 'POST') {
+      res.status(405).json({ error: 'Method not allowed.' })
+      return
+    }
+    return submitReferral(req, res)
+  }
+
+  res.status(404).json({ error: 'Not found.' })
 }
