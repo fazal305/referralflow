@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs'
-import { createSessionCookie, clearSessionCookie, getSession } from '../_lib/auth.js'
+import { createSessionCookie, clearSessionCookie, getSession } from './_lib/auth.js'
 
 async function login(req, res) {
   if (req.method !== 'POST') {
@@ -51,7 +51,7 @@ async function session(req, res) {
 }
 
 export default async function handler(req, res) {
-  const segments = [].concat(req.query.segments || [])
+  const segments = String(req.query.match || '').split('/').filter(Boolean)
   const [action] = segments
 
   if (action === 'login') return login(req, res)

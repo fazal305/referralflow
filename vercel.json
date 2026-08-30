@@ -1,5 +1,13 @@
 {
-  "rewrites": [
-    { "source": "/((?!api/).*)", "destination": "/index.html" }
+  "routes": [
+    { "src": "/api/clients/(.*)", "dest": "/api/clients?match=$1" },
+    { "src": "/api/referrals/(.*)", "dest": "/api/referrals?match=$1" },
+    { "src": "/api/templates/(.*)", "dest": "/api/templates?match=$1" },
+    { "src": "/api/rewards/(.*)", "dest": "/api/rewards?match=$1" },
+    { "src": "/api/tasks/(.*)", "dest": "/api/tasks?match=$1" },
+    { "src": "/api/auth/(.*)", "dest": "/api/auth?match=$1" },
+    { "src": "/api/public/(.*)", "dest": "/api/public?match=$1" },
+    { "handle": "filesystem" },
+    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }

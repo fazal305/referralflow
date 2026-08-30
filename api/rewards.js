@@ -1,5 +1,5 @@
-import { sql } from '../_lib/db.js'
-import { requireAuth } from '../_lib/auth.js'
+import { sql } from './_lib/db.js'
+import { requireAuth } from './_lib/auth.js'
 
 async function getSettings(req, res) {
   const [settings] = await sql`select * from reward_settings where id = true`
@@ -36,7 +36,7 @@ async function createReward(req, res) {
 }
 
 async function handler(req, res) {
-  const segments = [].concat(req.query.segments || [])
+  const segments = String(req.query.match || '').split('/').filter(Boolean)
   const [first] = segments
 
   if (first === 'settings') {

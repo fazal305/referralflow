@@ -1,4 +1,4 @@
-import { sql } from '../_lib/db.js'
+import { sql } from './_lib/db.js'
 
 // Public endpoints: never require auth, never expose private client fields.
 
@@ -77,7 +77,7 @@ async function submitReferral(req, res) {
 }
 
 export default async function handler(req, res) {
-  const segments = [].concat(req.query.segments || [])
+  const segments = String(req.query.match || '').split('/').filter(Boolean)
   const [first, second] = segments
 
   if (first === 'referrer' && second) {

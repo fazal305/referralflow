@@ -1,5 +1,5 @@
-import { sql, query } from '../_lib/db.js'
-import { requireAuth } from '../_lib/auth.js'
+import { sql, query } from './_lib/db.js'
+import { requireAuth } from './_lib/auth.js'
 
 const ALLOWED_FIELDS = ['category', 'name', 'channel', 'body', 'is_default']
 
@@ -47,7 +47,7 @@ async function deleteTemplate(req, res, id) {
 }
 
 async function handler(req, res) {
-  const segments = [].concat(req.query.segments || [])
+  const segments = String(req.query.match || '').split('/').filter(Boolean)
   const [id] = segments
 
   if (!id) {
