@@ -14,9 +14,35 @@ const NAV_ITEMS = [
   { to: '/settings', label: 'Settings' },
 ]
 
+function NavLinks({ onNavigate }) {
+  return (
+    <nav className="mt-8 flex flex-col gap-1" aria-label="Primary">
+      {NAV_ITEMS.map((item) => (
+        <NavLink
+          key={item.to}
+          to={item.to}
+          end={item.end}
+          onClick={onNavigate}
+          className={({ isActive }) =>
+            clsx(
+              'rounded-[var(--radius-md)] px-3 py-2 text-sm font-medium transition-colors',
+              isActive
+                ? 'bg-[var(--color-accent-50)] text-[var(--color-accent-700)]'
+                : 'text-[var(--color-text-muted)] hover:bg-black/5 hover:text-[var(--color-text)]',
+            )
+          }
+        >
+          {item.label}
+        </NavLink>
+      ))}
+    </nav>
+  )
+}
+
 export function AppShell() {
   const signOut = useAuthStore((s) => s.signOut)
   const [paletteOpen, setPaletteOpen] = useState(false)
+  const [mobileNavOpen, setMobileNavOpen] = useState(false)
 
   useEffect(() => {
     function onKeyDown(e) {
@@ -24,6 +50,7 @@ export function AppShell() {
         e.preventDefault()
         setPaletteOpen(true)
       }
+      if (e.key === 'Escape') setMobileNavOpen(false)
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
@@ -42,25 +69,7 @@ export function AppShell() {
         <span className="px-2 text-base font-semibold tracking-tight text-[var(--color-text)]">
           {APP_NAME}
         </span>
-        <nav className="mt-8 flex flex-col gap-1" aria-label="Primary">
-          {NAV_ITEMS.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.end}
-              className={({ isActive }) =>
-                clsx(
-                  'rounded-[var(--radius-md)] px-3 py-2 text-sm font-medium transition-colors',
-                  isActive
-                    ? 'bg-[var(--color-accent-50)] text-[var(--color-accent-700)]'
-                    : 'text-[var(--color-text-muted)] hover:bg-black/5 hover:text-[var(--color-text)]',
-                )
-              }
-            >
-              {item.label}
-            </NavLink>
-          ))}
-        </nav>
+        <NavLinks />
         <button
           type="button"
           onClick={signOut}
@@ -70,15 +79,62 @@ export function AppShell() {
         </button>
       </aside>
 
+      {mobileNavOpen && (
+        <div
+          className="fixed inset-0 z-40 flex md:hidden"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Navigation menu"
+        >
+          <div
+            className="absolute inset-0 bg-black/30"
+            onClick={() => setMobileNavOpen(false)}
+          />
+          <div className="relative flex w-64 flex-col bg-[var(--color-surface)] px-4 py-6 shadow-[var(--shadow-lg)]">
+            <div className="flex items-center justify-between">
+              <span className="px-2 text-base font-semibold tracking-tight text-[var(--color-text)]">
+                {APP_NAME}
+              </span>
+              <button
+                type="button"
+                onClick={() => setMobileNavOpen(false)}
+                aria-label="Close menu"
+                className="rounded-[var(--radius-md)] p-2 text-[var(--color-text-muted)] hover:bg-black/5"
+              >
+                ✕
+              </button>
+            </div>
+            <NavLinks onNavigate={() => setMobileNavOpen(false)} />
+            <button
+              type="button"
+              onClick={signOut}
+              className="mt-auto rounded-[var(--radius-md)] px-3 py-2 text-left text-sm font-medium text-[var(--color-text-muted)] hover:bg-black/5"
+            >
+              Sign out
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex h-14 items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-surface)] px-4 md:px-6">
+        <header className="flex h-14 items-center gap-2 border-b border-[var(--color-border)] bg-[var(--color-surface)] px-4 md:px-6">
+          <button
+            type="button"
+            onClick={() => setMobileNavOpen(true)}
+            aria-label="Open menu"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--radius-md)] text-[var(--color-text)] hover:bg-black/5 md:hidden"
+          >
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            </svg>
+          </button>
           <button
             type="button"
             onClick={() => setPaletteOpen(true)}
             className="flex h-9 w-full max-w-xs items-center gap-2 rounded-full border border-[var(--color-border-strong)] px-3 text-sm text-[var(--color-text-faint)] hover:border-[var(--color-border-strong)]"
           >
-            Search clients, referrals, codes…
-            <kbd className="ml-auto rounded border border-[var(--color-border)] px-1.5 py-0.5 text-[10px] text-[var(--color-text-faint)]">
+            <span className="truncate">Search clients, referrals, codes…</span>
+            <kbd className="ml-auto hidden shrink-0 rounded border border-[var(--color-border)] px-1.5 py-0.5 text-[10px] text-[var(--color-text-faint)] sm:inline">
               Ctrl K
             </kbd>
           </button>
