@@ -11,7 +11,7 @@ import {
   LineChart,
   Line,
 } from 'recharts'
-import { supabase } from '../services/supabaseClient'
+import { apiGet } from '../services/apiClient'
 import { listOpenTasks } from '../services/tasks'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
@@ -34,12 +34,8 @@ function buildMonthlySeries(referrals) {
   return months
 }
 
-async function fetchDashboardData() {
-  const { data: referrals, error } = await supabase
-    .from('referrals')
-    .select('id, stage, potential_value, actual_value, lead_name, referrer_name, created_at')
-  if (error) throw error
-  return referrals
+function fetchDashboardData() {
+  return apiGet('/dashboard')
 }
 
 function currency(n) {

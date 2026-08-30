@@ -1,40 +1,20 @@
-import { supabase } from './supabaseClient'
+import { apiGet, apiPost, apiPatch, apiDelete } from './apiClient'
 import { TEMPLATE_VARIABLES } from '../config/constants'
 
-export async function listTemplates() {
-  const { data, error } = await supabase
-    .from('referral_templates')
-    .select('*')
-    .order('category')
-  if (error) throw error
-  return data
+export function listTemplates() {
+  return apiGet('/templates')
 }
 
-export async function createTemplate(payload) {
-  const { data: userData } = await supabase.auth.getUser()
-  const { data, error } = await supabase
-    .from('referral_templates')
-    .insert({ ...payload, owner_id: userData.user.id })
-    .select()
-    .single()
-  if (error) throw error
-  return data
+export function createTemplate(payload) {
+  return apiPost('/templates', payload)
 }
 
-export async function updateTemplate(id, payload) {
-  const { data, error } = await supabase
-    .from('referral_templates')
-    .update(payload)
-    .eq('id', id)
-    .select()
-    .single()
-  if (error) throw error
-  return data
+export function updateTemplate(id, payload) {
+  return apiPatch(`/templates/${id}`, payload)
 }
 
-export async function deleteTemplate(id) {
-  const { error } = await supabase.from('referral_templates').delete().eq('id', id)
-  if (error) throw error
+export function deleteTemplate(id) {
+  return apiDelete(`/templates/${id}`)
 }
 
 // Safe variable replacement: only known {{variable}} tokens are substituted.

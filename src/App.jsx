@@ -1,7 +1,6 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuthStore } from './stores/authStore'
-import { supabaseConfigured } from './services/supabaseClient'
 import { SetupRequired } from './components/SetupRequired'
 import { AppShell } from './components/AppShell'
 import { PageLoader } from './components/ui/Spinner'
@@ -24,20 +23,36 @@ function RequireAuth({ children }) {
   return children
 }
 
+function useBackendHealth() {
+  const [health, setHealth] = useState('checking') // 'checking' | 'ok' | 'unconfigured'
+
+  useEffect(() => {
+    fetch('/api/health')
+      .then((res) => res.json())
+      .then((data) => setHealth(data.ok ? 'ok' : 'unconfigured'))
+      .catch(() => setHealth('unconfigured'))
+  }, [])
+
+  return health
+}
+
 export default function App() {
   const init = useAuthStore((s) => s.init)
   const status = useAuthStore((s) => s.status)
+  const health = useBackendHealth()
 
   useEffect(() => {
-    init()
-  }, [init])
+    if (health === 'ok') init()
+  }, [health, init])
 
   return (
     <Routes>
       {/* Public route — never requires auth, never exposes private client data. */}
       <Route path="/r/:code" element={<PublicReferralPage />} />
 
-      {!supabaseConfigured ? (
+      {health === 'checking' ? (
+        <Route path="*" element={<PageLoader label="Starting up…" />} />
+      ) : health === 'unconfigured' ? (
         <Route path="*" element={<SetupRequired />} />
       ) : (
         <>

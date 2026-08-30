@@ -1,29 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { supabase } from '../services/supabaseClient'
+import { apiGet } from '../services/apiClient'
 import { Input } from './ui/Input'
 
-async function search(term) {
-  if (!term) return { clients: [], referrals: [] }
-
-  const [clientsRes, referralsRes] = await Promise.all([
-    supabase
-      .from('clients')
-      .select('id, name, company')
-      .or(`name.ilike.%${term}%,company.ilike.%${term}%,notes.ilike.%${term}%`)
-      .limit(5),
-    supabase
-      .from('referrals')
-      .select('id, lead_name, referrer_name')
-      .or(`lead_name.ilike.%${term}%,referrer_name.ilike.%${term}%`)
-      .limit(5),
-  ])
-
-  if (clientsRes.error) throw clientsRes.error
-  if (referralsRes.error) throw referralsRes.error
-
-  return { clients: clientsRes.data, referrals: referralsRes.data }
+function search(term) {
+  return apiGet(`/search?q=${encodeURIComponent(term)}`)
 }
 
 export function CommandPalette({ onClose }) {

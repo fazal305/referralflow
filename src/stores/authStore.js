@@ -1,38 +1,29 @@
 import { create } from 'zustand'
-import { supabase } from '../services/supabaseClient'
+import { apiFetch } from '../services/apiClient'
 
 export const useAuthStore = create((set) => ({
-  session: null,
+  email: null,
   status: 'loading', // 'loading' | 'authenticated' | 'unauthenticated'
 
   init: async () => {
-    if (!supabase) {
-      set({ status: 'unauthenticated', session: null })
-      return
+    try {
+      const data = await apiFetch('/auth/session')
+      set({ status: 'authenticated', email: data.email })
+    } catch {
+      set({ status: 'unauthenticated', email: null })
     }
-    const { data } = await supabase.auth.getSession()
-    set({
-      session: data.session,
-      status: data.session ? 'authenticated' : 'unauthenticated',
-    })
-    supabase.auth.onAuthStateChange((_event, session) => {
-      set({ session, status: session ? 'authenticated' : 'unauthenticated' })
-    })
   },
 
   signIn: async (email, password) => {
-    if (!supabase) throw new Error('Supabase is not configured.')
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+    const data = await apiFetch('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
     })
-    if (error) throw error
-    set({ session: data.session, status: 'authenticated' })
+    set({ status: 'authenticated', email: data.email })
   },
 
   signOut: async () => {
-    if (!supabase) return
-    await supabase.auth.signOut()
-    set({ session: null, status: 'unauthenticated' })
+    await apiFetch('/auth/logout', { method: 'POST' })
+    set({ status: 'unauthenticated', email: null })
   },
 }))
