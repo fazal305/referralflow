@@ -1,4 +1,4 @@
-import { sql } from '../_lib/db.js'
+import { sql, query } from '../_lib/db.js'
 import { requireAuth } from '../_lib/auth.js'
 
 const ALLOWED_FIELDS = [
@@ -57,7 +57,7 @@ async function handler(req, res) {
     }
     const setClauses = updates.map(([key], i) => `${key} = $${i + 2}`).join(', ')
     const values = updates.map(([, value]) => value)
-    const rows = await sql(
+    const rows = await query(
       `update referrals set ${setClauses}, last_activity_at = now(), updated_at = now() where id = $1 returning *`,
       [id, ...values],
     )
