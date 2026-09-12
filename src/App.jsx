@@ -4,6 +4,7 @@ import { useAuthStore } from './stores/authStore'
 import { SetupRequired } from './components/SetupRequired'
 import { AppShell } from './components/AppShell'
 import { PageLoader } from './components/ui/Spinner'
+import { ToastViewport } from './components/ui/Toast'
 import { LoginPage } from './features/auth/LoginPage'
 import { DashboardPage } from './pages/DashboardPage'
 import { ClientsPage } from './pages/ClientsPage'
@@ -46,42 +47,45 @@ export default function App() {
   }, [health, init])
 
   return (
-    <Routes>
-      {/* Public route — never requires auth, never exposes private client data. */}
-      <Route path="/r/:code" element={<PublicReferralPage />} />
+    <>
+      <Routes>
+        {/* Public route — never requires auth, never exposes private client data. */}
+        <Route path="/r/:code" element={<PublicReferralPage />} />
 
-      {health === 'checking' ? (
-        <Route path="*" element={<PageLoader label="Starting up…" />} />
-      ) : health === 'unconfigured' ? (
-        <Route path="*" element={<SetupRequired />} />
-      ) : (
-        <>
-          <Route
-            path="/login"
-            element={
-              status === 'authenticated' ? <Navigate to="/" replace /> : <LoginPage />
-            }
-          />
-          <Route
-            path="/"
-            element={
-              <RequireAuth>
-                <AppShell />
-              </RequireAuth>
-            }
-          >
-            <Route index element={<DashboardPage />} />
-            <Route path="clients" element={<ClientsPage />} />
-            <Route path="clients/:id" element={<ClientDetailPage />} />
-            <Route path="referrals" element={<ReferralsPage />} />
-            <Route path="referrals/:id" element={<ReferralDetailPage />} />
-            <Route path="templates" element={<TemplatesPage />} />
-            <Route path="rewards" element={<RewardsPage />} />
-            <Route path="settings" element={<SettingsPage />} />
-          </Route>
-          <Route path="*" element={<NotFoundPage />} />
-        </>
-      )}
-    </Routes>
+        {health === 'checking' ? (
+          <Route path="*" element={<PageLoader label="Starting up…" />} />
+        ) : health === 'unconfigured' ? (
+          <Route path="*" element={<SetupRequired />} />
+        ) : (
+          <>
+            <Route
+              path="/login"
+              element={
+                status === 'authenticated' ? <Navigate to="/" replace /> : <LoginPage />
+              }
+            />
+            <Route
+              path="/"
+              element={
+                <RequireAuth>
+                  <AppShell />
+                </RequireAuth>
+              }
+            >
+              <Route index element={<DashboardPage />} />
+              <Route path="clients" element={<ClientsPage />} />
+              <Route path="clients/:id" element={<ClientDetailPage />} />
+              <Route path="referrals" element={<ReferralsPage />} />
+              <Route path="referrals/:id" element={<ReferralDetailPage />} />
+              <Route path="templates" element={<TemplatesPage />} />
+              <Route path="rewards" element={<RewardsPage />} />
+              <Route path="settings" element={<SettingsPage />} />
+            </Route>
+            <Route path="*" element={<NotFoundPage />} />
+          </>
+        )}
+      </Routes>
+      <ToastViewport />
+    </>
   )
 }

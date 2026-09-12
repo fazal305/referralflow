@@ -7,6 +7,7 @@ import { Input, Select } from '../components/ui/Input'
 import { PageLoader } from '../components/ui/Spinner'
 import { EmptyState } from '../components/ui/EmptyState'
 import { REFERRAL_STAGES } from '../config/constants'
+import { showToast } from '../stores/toastStore'
 
 function currency(n) {
   if (!n && n !== 0) return null
@@ -21,7 +22,10 @@ function ReferralCard({ referral }) {
   const queryClient = useQueryClient()
   const stageMutation = useMutation({
     mutationFn: (stage) => updateReferralStage(referral.id, stage),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['referrals'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['referrals'] })
+      showToast('Referral stage updated.')
+    },
   })
 
   return (

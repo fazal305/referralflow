@@ -8,6 +8,7 @@ import { Badge } from '../components/ui/Badge'
 import { Input, Label, Select, Textarea } from '../components/ui/Input'
 import { PageLoader } from '../components/ui/Spinner'
 import { EmptyState } from '../components/ui/EmptyState'
+import { showToast } from '../stores/toastStore'
 
 function NewClientForm({ onClose }) {
   const queryClient = useQueryClient()
@@ -25,6 +26,7 @@ function NewClientForm({ onClose }) {
     mutationFn: createClient,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['clients'] })
+      showToast('Client added.')
       onClose()
     },
     onError: (err) => setError(err.message),

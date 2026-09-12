@@ -15,6 +15,7 @@ import { Button } from '../components/ui/Button'
 import { Badge } from '../components/ui/Badge'
 import { Select, Textarea, Label, Input } from '../components/ui/Input'
 import { BUSINESS_NAME, REFERRAL_STAGES } from '../config/constants'
+import { showToast } from '../stores/toastStore'
 
 const STAGE_TONE = {
   new: 'neutral',
@@ -105,7 +106,10 @@ export function ReferralDetailPage() {
 
   const stageMutation = useMutation({
     mutationFn: (stage) => updateReferralStage(id, stage),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['referral', id] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['referral', id] })
+      showToast('Referral stage updated.')
+    },
   })
 
   const noteMutation = useMutation({
@@ -116,6 +120,7 @@ export function ReferralDetailPage() {
     onSuccess: () => {
       setNote('')
       queryClient.invalidateQueries({ queryKey: ['referral', id] })
+      showToast('Note added.')
     },
   })
 
@@ -131,6 +136,7 @@ export function ReferralDetailPage() {
     onSuccess: () => {
       setRewardValue('')
       queryClient.invalidateQueries({ queryKey: ['referral', id] })
+      showToast('Reward logged.')
     },
   })
 

@@ -9,6 +9,7 @@ import { Button } from '../components/ui/Button'
 import { Badge } from '../components/ui/Badge'
 import { Select, Textarea, Label } from '../components/ui/Input'
 import { BUSINESS_NAME, PUBLIC_APP_URL } from '../config/constants'
+import { showToast } from '../stores/toastStore'
 
 function useCopy() {
   const [copied, setCopied] = useState(null)
@@ -137,12 +138,18 @@ export function ClientDetailPage() {
 
   const generateCode = useMutation({
     mutationFn: () => ensureReferralCode(id, client.name),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['client', id] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['client', id] })
+      showToast('Referral link generated.')
+    },
   })
 
   const toggleEligible = useMutation({
     mutationFn: (value) => updateClient(id, { referral_eligible: value }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['client', id] }),
+    onSuccess: (_, value) => {
+      queryClient.invalidateQueries({ queryKey: ['client', id] })
+      showToast(value ? 'Client marked eligible.' : 'Client marked ineligible.')
+    },
   })
 
   if (isLoading) return <PageLoader label="Loading client…" />

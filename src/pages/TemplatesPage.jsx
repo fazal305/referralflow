@@ -11,6 +11,7 @@ import { Button } from '../components/ui/Button'
 import { Input, Label, Select, Textarea } from '../components/ui/Input'
 import { PageLoader } from '../components/ui/Spinner'
 import { EmptyState } from '../components/ui/EmptyState'
+import { showToast } from '../stores/toastStore'
 import { TEMPLATE_CATEGORIES, TEMPLATE_VARIABLES } from '../config/constants'
 
 const CATEGORY_LABELS = {
@@ -41,6 +42,7 @@ function TemplateEditor({ template, onClose }) {
       template ? updateTemplate(template.id, form) : createTemplate(form),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['templates'] })
+      showToast(template ? 'Template updated.' : 'Template created.')
       onClose()
     },
     onError: (err) => setError(err.message),
@@ -155,7 +157,10 @@ export function TemplatesPage() {
 
   const deleteMutation = useMutation({
     mutationFn: deleteTemplate,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['templates'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['templates'] })
+      showToast('Template deleted.')
+    },
   })
 
   if (isLoading) return <PageLoader label="Loading templates…" />

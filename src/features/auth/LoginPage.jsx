@@ -7,6 +7,7 @@ import { APP_NAME } from '../../config/constants'
 
 export function LoginPage() {
   const signIn = useAuthStore((s) => s.signIn)
+  const sessionExpired = useAuthStore((s) => s.sessionExpired)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState(null)
@@ -34,6 +35,15 @@ export function LoginPage() {
         <p className="mt-1 text-sm text-[var(--color-text-muted)]">
           Sign in to your referral workspace.
         </p>
+
+        {sessionExpired && (
+          <p
+            role="alert"
+            className="mt-4 rounded-[var(--radius-md)] bg-[var(--color-warning-50)] px-3 py-2 text-sm text-[var(--color-warning-700)]"
+          >
+            Your session has expired — please log in again.
+          </p>
+        )}
 
         <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4">
           <div>
