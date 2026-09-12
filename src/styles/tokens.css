@@ -44,7 +44,7 @@
 
   /* Typography */
   --font-sans:
-    'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    'Karla', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-heading:
     'Manrope', 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-mono: ui-monospace, 'SFMono-Regular', Consolas, monospace;
