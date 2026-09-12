@@ -5,18 +5,18 @@ request, track, and convert client referrals, instead of leaving word-of-mouth g
 to chance.
 
 **Live**: https://referralflow-rust.vercel.app
-**Repo**: https://github.com/fazal305/referralflow (private)
+**Repo**: https://github.com/fazal305/referralflow (public)
 
 ## Demo login
 
-```
-Email:    admin@referralflow.local
-Password: 6kCsncfql8Hk
-```
+There is no shared demo credential — set your own admin login via `ADMIN_EMAIL` /
+`ADMIN_PASSWORD_HASH` in Vercel's environment variables (see **Changing your login**
+below). No code change needed.
 
-This is a real, working credential set generated for initial setup — not a placeholder.
-Change it any time by updating `ADMIN_EMAIL` / `ADMIN_PASSWORD_HASH` in Vercel's
-environment variables (see **Changing your login** below). No code change needed.
+> This repo is public. A real admin password was previously committed to this file in
+> plaintext; if you inherited a deployment using that value, rotate `ADMIN_EMAIL` /
+> `ADMIN_PASSWORD_HASH` in Vercel immediately, since it has been publicly exposed and
+> remains in this file's git history.
 
 ## What it does
 
