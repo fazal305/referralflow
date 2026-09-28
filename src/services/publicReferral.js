@@ -1,11 +1,11 @@
-import { apiGet, apiPost } from './apiClient'
+import { apiGet, apiPost } from "./apiClient";
 
 export function getReferrerDisplayName(code) {
-  return apiGet(`/public/referrer/${code}`)
+  return apiGet(`/public/referrer/${code}`);
 }
 
 export function submitPublicReferral(code, form) {
-  return apiPost('/public/submit-referral', {
+  return apiPost("/public/submit-referral", {
     code,
     leadName: form.leadName,
     leadEmail: form.leadEmail || null,
@@ -14,5 +14,5 @@ export function submitPublicReferral(code, form) {
     referrerName: form.referrerName || null,
     referrerEmail: form.referrerEmail || null,
     message: form.message || null,
-  })
+  });
 }

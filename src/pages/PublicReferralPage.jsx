@@ -1,36 +1,43 @@
-import { useState } from 'react'
-import { useParams } from 'react-router-dom'
-import { useQuery, useMutation } from '@tanstack/react-query'
-import { getReferrerDisplayName, submitPublicReferral } from '../services/publicReferral'
-import { Button } from '../components/ui/Button'
-import { Input, Label, Textarea } from '../components/ui/Input'
-import { PageLoader } from '../components/ui/Spinner'
-import { APP_NAME, BUSINESS_NAME } from '../config/constants'
+import { useState } from "react";
+import { useParams } from "react-router-dom";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import {
+  getReferrerDisplayName,
+  submitPublicReferral,
+} from "../services/publicReferral";
+import { Button } from "../components/ui/Button";
+import { Input, Label, Textarea } from "../components/ui/Input";
+import { PageLoader } from "../components/ui/Spinner";
+import { APP_NAME, BUSINESS_NAME } from "../config/constants";
 
 export function PublicReferralPage() {
-  const { code } = useParams()
+  const { code } = useParams();
   const [form, setForm] = useState({
-    referrerName: '',
-    referrerEmail: '',
-    leadName: '',
-    leadEmail: '',
-    leadPhone: '',
-    leadNeed: '',
-    message: '',
-  })
-  const [error, setError] = useState(null)
+    referrerName: "",
+    referrerEmail: "",
+    leadName: "",
+    leadEmail: "",
+    leadPhone: "",
+    leadNeed: "",
+    message: "",
+  });
+  const [error, setError] = useState(null);
 
-  const { data: referrer, isLoading, isError } = useQuery({
-    queryKey: ['referrer-display', code],
+  const {
+    data: referrer,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["referrer-display", code],
     queryFn: () => getReferrerDisplayName(code),
-  })
+  });
 
   const mutation = useMutation({
     mutationFn: () => submitPublicReferral(code, form),
     onError: (err) => setError(err.message),
-  })
+  });
 
-  if (isLoading) return <PageLoader label="Loading…" />
+  if (isLoading) return <PageLoader label="Loading…" />;
 
   if (isError || !referrer || referrer.code_is_active === false) {
     return (
@@ -42,7 +49,7 @@ export function PublicReferralPage() {
           Double-check the link, or ask the person who shared it for a new one.
         </p>
       </div>
-    )
+    );
   }
 
   if (mutation.isSuccess) {
@@ -59,17 +66,19 @@ export function PublicReferralPage() {
           notified that this went through.
         </p>
       </div>
-    )
+    );
   }
 
   function handleSubmit(e) {
-    e.preventDefault()
+    e.preventDefault();
     if (!form.leadName.trim()) {
-      setError('Please enter the name of the person or business you are referring.')
-      return
+      setError(
+        "Please enter the name of the person or business you are referring.",
+      );
+      return;
     }
-    setError(null)
-    mutation.mutate()
+    setError(null);
+    mutation.mutate();
   }
 
   return (
@@ -82,8 +91,8 @@ export function PublicReferralPage() {
           Recommended by {referrer.client_name}
         </h1>
         <p className="mt-2 text-center text-sm text-[var(--color-text-muted)]">
-          {referrer.client_name} referred you to {BUSINESS_NAME}. Fill in a
-          few details and we'll take it from here.
+          {referrer.client_name} referred you to {BUSINESS_NAME}. Fill in a few
+          details and we'll take it from here.
         </p>
 
         <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4">
@@ -92,7 +101,9 @@ export function PublicReferralPage() {
             <Input
               id="referrerName"
               value={form.referrerName}
-              onChange={(e) => setForm({ ...form, referrerName: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, referrerName: e.target.value })
+              }
             />
           </div>
           <div>
@@ -101,7 +112,9 @@ export function PublicReferralPage() {
               id="referrerEmail"
               type="email"
               value={form.referrerEmail}
-              onChange={(e) => setForm({ ...form, referrerEmail: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, referrerEmail: e.target.value })
+              }
             />
           </div>
           <div>
@@ -160,11 +173,16 @@ export function PublicReferralPage() {
             </p>
           )}
 
-          <Button type="submit" size="lg" disabled={mutation.isPending} className="mt-2">
-            {mutation.isPending ? 'Sending…' : 'Send referral'}
+          <Button
+            type="submit"
+            size="lg"
+            disabled={mutation.isPending}
+            className="mt-2"
+          >
+            {mutation.isPending ? "Sending…" : "Send referral"}
           </Button>
         </form>
       </div>
     </div>
-  )
+  );
 }

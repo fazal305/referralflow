@@ -1,18 +1,18 @@
-import { NavLink, Outlet } from 'react-router-dom'
-import clsx from 'clsx'
-import { useAuthStore } from '../stores/authStore'
-import { APP_NAME } from '../config/constants'
-import { CommandPalette } from './CommandPalette'
-import { useState, useEffect } from 'react'
+import { NavLink, Outlet } from "react-router-dom";
+import clsx from "clsx";
+import { useAuthStore } from "../stores/authStore";
+import { APP_NAME } from "../config/constants";
+import { CommandPalette } from "./CommandPalette";
+import { useState, useEffect } from "react";
 
 const NAV_ITEMS = [
-  { to: '/', label: 'Dashboard', end: true },
-  { to: '/clients', label: 'Clients' },
-  { to: '/referrals', label: 'Referrals' },
-  { to: '/templates', label: 'Templates' },
-  { to: '/rewards', label: 'Rewards' },
-  { to: '/settings', label: 'Settings' },
-]
+  { to: "/", label: "Dashboard", end: true },
+  { to: "/clients", label: "Clients" },
+  { to: "/referrals", label: "Referrals" },
+  { to: "/templates", label: "Templates" },
+  { to: "/rewards", label: "Rewards" },
+  { to: "/settings", label: "Settings" },
+];
 
 function NavLinks({ onNavigate }) {
   return (
@@ -25,10 +25,10 @@ function NavLinks({ onNavigate }) {
           onClick={onNavigate}
           className={({ isActive }) =>
             clsx(
-              'rounded-[var(--radius-md)] px-3 py-2 text-sm font-medium transition-colors',
+              "rounded-[var(--radius-md)] px-3 py-2 text-sm font-medium transition-colors",
               isActive
-                ? 'bg-[var(--color-accent-50)] text-[var(--color-accent-700)]'
-                : 'text-[var(--color-text-muted)] hover:bg-black/5 hover:text-[var(--color-text)]',
+                ? "bg-[var(--color-accent-50)] text-[var(--color-accent-700)]"
+                : "text-[var(--color-text-muted)] hover:bg-black/5 hover:text-[var(--color-text)]",
             )
           }
         >
@@ -36,25 +36,25 @@ function NavLinks({ onNavigate }) {
         </NavLink>
       ))}
     </nav>
-  )
+  );
 }
 
 export function AppShell() {
-  const signOut = useAuthStore((s) => s.signOut)
-  const [paletteOpen, setPaletteOpen] = useState(false)
-  const [mobileNavOpen, setMobileNavOpen] = useState(false)
+  const signOut = useAuthStore((s) => s.signOut);
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   useEffect(() => {
     function onKeyDown(e) {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
-        e.preventDefault()
-        setPaletteOpen(true)
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setPaletteOpen(true);
       }
-      if (e.key === 'Escape') setMobileNavOpen(false)
+      if (e.key === "Escape") setMobileNavOpen(false);
     }
-    window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
-  }, [])
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
 
   return (
     <div className="flex min-h-screen bg-[var(--color-bg)]">
@@ -124,8 +124,19 @@ export function AppShell() {
             aria-label="Open menu"
             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--radius-md)] text-[var(--color-text)] hover:bg-black/5 md:hidden"
           >
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-              <path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 20 20"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M3 5h14M3 10h14M3 15h14"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              />
             </svg>
           </button>
           <button
@@ -147,5 +158,5 @@ export function AppShell() {
 
       {paletteOpen && <CommandPalette onClose={() => setPaletteOpen(false)} />}
     </div>
-  )
+  );
 }

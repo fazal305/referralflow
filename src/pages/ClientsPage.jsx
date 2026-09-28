@@ -1,45 +1,45 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { listClients, createClient } from '../services/clients'
-import { Card } from '../components/ui/Card'
-import { Button } from '../components/ui/Button'
-import { Badge } from '../components/ui/Badge'
-import { Input, Label, Select, Textarea } from '../components/ui/Input'
-import { PageLoader } from '../components/ui/Spinner'
-import { EmptyState } from '../components/ui/EmptyState'
-import { showToast } from '../stores/toastStore'
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { listClients, createClient } from "../services/clients";
+import { Card } from "../components/ui/Card";
+import { Button } from "../components/ui/Button";
+import { Badge } from "../components/ui/Badge";
+import { Input, Label, Select, Textarea } from "../components/ui/Input";
+import { PageLoader } from "../components/ui/Spinner";
+import { EmptyState } from "../components/ui/EmptyState";
+import { showToast } from "../stores/toastStore";
 
 function NewClientForm({ onClose }) {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
   const [form, setForm] = useState({
-    name: '',
-    company: '',
-    email: '',
-    phone: '',
-    preferred_contact_method: 'email',
-    notes: '',
-  })
-  const [error, setError] = useState(null)
+    name: "",
+    company: "",
+    email: "",
+    phone: "",
+    preferred_contact_method: "email",
+    notes: "",
+  });
+  const [error, setError] = useState(null);
 
   const mutation = useMutation({
     mutationFn: createClient,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['clients'] })
-      showToast('Client added.')
-      onClose()
+      queryClient.invalidateQueries({ queryKey: ["clients"] });
+      showToast("Client added.");
+      onClose();
     },
     onError: (err) => setError(err.message),
-  })
+  });
 
   function handleSubmit(e) {
-    e.preventDefault()
+    e.preventDefault();
     if (!form.name.trim()) {
-      setError('Client name is required.')
-      return
+      setError("Client name is required.");
+      return;
     }
-    setError(null)
-    mutation.mutate(form)
+    setError(null);
+    mutation.mutate(form);
   }
 
   return (
@@ -129,23 +129,23 @@ function NewClientForm({ onClose }) {
               Cancel
             </Button>
             <Button type="submit" disabled={mutation.isPending}>
-              {mutation.isPending ? 'Saving…' : 'Add client'}
+              {mutation.isPending ? "Saving…" : "Add client"}
             </Button>
           </div>
         </form>
       </Card>
     </div>
-  )
+  );
 }
 
 export function ClientsPage() {
-  const [search, setSearch] = useState('')
-  const [showNew, setShowNew] = useState(false)
+  const [search, setSearch] = useState("");
+  const [showNew, setShowNew] = useState(false);
 
   const { data: clients, isLoading } = useQuery({
-    queryKey: ['clients', search],
+    queryKey: ["clients", search],
     queryFn: () => listClients({ search }),
-  })
+  });
 
   return (
     <div className="flex flex-col gap-6">
@@ -174,45 +174,49 @@ export function ClientsPage() {
       ) : clients?.length ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {clients.map((client) => (
-              <Link key={client.id} to={`/clients/${client.id}`}>
-                <Card className="h-full p-4 transition-shadow hover:shadow-[var(--shadow-md)]">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <p className="font-medium text-[var(--color-text)]">
-                        {client.name}
+            <Link key={client.id} to={`/clients/${client.id}`}>
+              <Card className="h-full p-4 transition-shadow hover:shadow-[var(--shadow-md)]">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="font-medium text-[var(--color-text)]">
+                      {client.name}
+                    </p>
+                    {client.company && (
+                      <p className="text-sm text-[var(--color-text-muted)]">
+                        {client.company}
                       </p>
-                      {client.company && (
-                        <p className="text-sm text-[var(--color-text-muted)]">
-                          {client.company}
-                        </p>
-                      )}
-                    </div>
-                    <Badge tone={client.referral_eligible ? 'success' : 'neutral'}>
-                      {client.referral_eligible ? 'Eligible' : 'Not eligible'}
-                    </Badge>
+                    )}
                   </div>
-                  <p className="mt-3 text-xs text-[var(--color-text-faint)]">
-                    {client.projects?.length || 0} project(s)
-                  </p>
-                </Card>
-              </Link>
+                  <Badge
+                    tone={client.referral_eligible ? "success" : "neutral"}
+                  >
+                    {client.referral_eligible ? "Eligible" : "Not eligible"}
+                  </Badge>
+                </div>
+                <p className="mt-3 text-xs text-[var(--color-text-faint)]">
+                  {client.projects?.length || 0} project(s)
+                </p>
+              </Card>
+            </Link>
           ))}
         </div>
       ) : (
         <EmptyState
-          title={search ? 'No clients match your search.' : 'No clients yet.'}
+          title={search ? "No clients match your search." : "No clients yet."}
           description={
             search
-              ? 'Try a different name or company.'
-              : 'Add your first client to start generating referrals from their success.'
+              ? "Try a different name or company."
+              : "Add your first client to start generating referrals from their success."
           }
           action={
-            !search && <Button onClick={() => setShowNew(true)}>Add client</Button>
+            !search && (
+              <Button onClick={() => setShowNew(true)}>Add client</Button>
+            )
           }
         />
       )}
 
       {showNew && <NewClientForm onClose={() => setShowNew(false)} />}
     </div>
-  )
+  );
 }

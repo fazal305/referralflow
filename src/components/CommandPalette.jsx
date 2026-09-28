@@ -1,40 +1,40 @@
-import { useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
-import { apiGet } from '../services/apiClient'
-import { Input } from './ui/Input'
+import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { apiGet } from "../services/apiClient";
+import { Input } from "./ui/Input";
 
 function search(term) {
-  return apiGet(`/search?q=${encodeURIComponent(term)}`)
+  return apiGet(`/search?q=${encodeURIComponent(term)}`);
 }
 
 export function CommandPalette({ onClose }) {
-  const [term, setTerm] = useState('')
-  const inputRef = useRef(null)
-  const navigate = useNavigate()
+  const [term, setTerm] = useState("");
+  const inputRef = useRef(null);
+  const navigate = useNavigate();
 
   const { data, isFetching } = useQuery({
-    queryKey: ['global-search', term],
+    queryKey: ["global-search", term],
     queryFn: () => search(term),
     enabled: term.length > 1,
-  })
+  });
 
   useEffect(() => {
-    inputRef.current?.focus()
+    inputRef.current?.focus();
     function onKeyDown(e) {
-      if (e.key === 'Escape') onClose()
+      if (e.key === "Escape") onClose();
     }
-    window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
-  }, [onClose])
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [onClose]);
 
   function go(path) {
-    navigate(path)
-    onClose()
+    navigate(path);
+    onClose();
   }
 
   const hasResults =
-    data && (data.clients.length > 0 || data.referrals.length > 0)
+    data && (data.clients.length > 0 || data.referrals.length > 0);
 
   return (
     <div
@@ -117,5 +117,5 @@ export function CommandPalette({ onClose }) {
         </div>
       </div>
     </div>
-  )
+  );
 }

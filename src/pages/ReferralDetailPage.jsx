@@ -1,70 +1,71 @@
-import { useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useState } from "react";
+import { useParams, Link } from "react-router-dom";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   getReferral,
   updateReferralStage,
   updateReferral,
   logEvent,
-} from '../services/referrals'
-import { listTemplates, renderTemplate } from '../services/templates'
-import { createReward } from '../services/rewards'
-import { PageLoader } from '../components/ui/Spinner'
-import { Card } from '../components/ui/Card'
-import { Button } from '../components/ui/Button'
-import { Badge } from '../components/ui/Badge'
-import { Select, Textarea, Label, Input } from '../components/ui/Input'
-import { BUSINESS_NAME, REFERRAL_STAGES } from '../config/constants'
-import { showToast } from '../stores/toastStore'
+} from "../services/referrals";
+import { listTemplates, renderTemplate } from "../services/templates";
+import { createReward } from "../services/rewards";
+import { PageLoader } from "../components/ui/Spinner";
+import { Card } from "../components/ui/Card";
+import { Button } from "../components/ui/Button";
+import { Badge } from "../components/ui/Badge";
+import { Select, Textarea, Label, Input } from "../components/ui/Input";
+import { BUSINESS_NAME, REFERRAL_STAGES } from "../config/constants";
+import { showToast } from "../stores/toastStore";
 
 const STAGE_TONE = {
-  new: 'neutral',
-  contacted: 'info',
-  qualified: 'accent',
-  proposal: 'warning',
-  negotiating: 'warning',
-  won: 'success',
-  lost: 'danger',
-}
+  new: "neutral",
+  contacted: "info",
+  qualified: "accent",
+  proposal: "warning",
+  negotiating: "warning",
+  won: "success",
+  lost: "danger",
+};
 
 const THANK_YOU_CATEGORIES = {
-  received: 'referral_received',
-  contacted: 'lead_contacted',
-  won: 'deal_won',
-  lost: 'deal_lost',
-}
+  received: "referral_received",
+  contacted: "lead_contacted",
+  won: "deal_won",
+  lost: "deal_lost",
+};
 
 function ThankReferrer({ referral }) {
   const { data: templates } = useQuery({
-    queryKey: ['templates'],
+    queryKey: ["templates"],
     queryFn: listTemplates,
-  })
-  const [category, setCategory] = useState('received')
-  const [copied, setCopied] = useState(false)
+  });
+  const [category, setCategory] = useState("received");
+  const [copied, setCopied] = useState(false);
 
   const matchingTemplate = templates?.find(
     (t) => t.category === THANK_YOU_CATEGORIES[category],
-  )
+  );
   const fallback = {
     received:
-      'Hey {{clientName}}, thank you so much for the introduction to {{referralName}} — really appreciate you thinking of me!',
+      "Hey {{clientName}}, thank you so much for the introduction to {{referralName}} — really appreciate you thinking of me!",
     contacted:
       "Quick update — I've reached out to {{referralName}} and we're talking. Thanks again for the referral!",
     won: "Great news — {{referralName}} is officially on board! Thank you so much for the introduction, {{clientName}}.",
     lost: "Wanted to close the loop — it didn't work out with {{referralName}} this time, but I really appreciate you thinking of me. Thank you!",
-  }[category]
+  }[category];
 
-  const body = matchingTemplate?.body || fallback
+  const body = matchingTemplate?.body || fallback;
   const rendered = renderTemplate(body, {
-    clientName: referral.referrer_client?.name || referral.referrer_name || 'there',
+    clientName:
+      referral.referrer_client?.name || referral.referrer_name || "there",
     referralName: referral.lead_name,
     businessName: BUSINESS_NAME,
-  })
+  });
 
   async function copy() {
-    await navigator.clipboard.writeText(rendered)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 1500)
+    await navigator.clipboard.writeText(rendered);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
   }
 
   return (
@@ -87,61 +88,61 @@ function ThankReferrer({ referral }) {
       </div>
       <Textarea className="mt-3" rows={4} value={rendered} readOnly />
       <Button size="sm" variant="secondary" className="mt-3" onClick={copy}>
-        {copied ? 'Copied!' : 'Copy message'}
+        {copied ? "Copied!" : "Copy message"}
       </Button>
     </Card>
-  )
+  );
 }
 
 export function ReferralDetailPage() {
-  const { id } = useParams()
-  const queryClient = useQueryClient()
-  const [note, setNote] = useState('')
-  const [rewardValue, setRewardValue] = useState('')
+  const { id } = useParams();
+  const queryClient = useQueryClient();
+  const [note, setNote] = useState("");
+  const [rewardValue, setRewardValue] = useState("");
 
   const { data: referral, isLoading } = useQuery({
-    queryKey: ['referral', id],
+    queryKey: ["referral", id],
     queryFn: () => getReferral(id),
-  })
+  });
 
   const stageMutation = useMutation({
     mutationFn: (stage) => updateReferralStage(id, stage),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['referral', id] })
-      showToast('Referral stage updated.')
+      queryClient.invalidateQueries({ queryKey: ["referral", id] });
+      showToast("Referral stage updated.");
     },
-  })
+  });
 
   const noteMutation = useMutation({
     mutationFn: async () => {
-      await updateReferral(id, { notes: note })
-      await logEvent(id, 'note_added', note)
+      await updateReferral(id, { notes: note });
+      await logEvent(id, "note_added", note);
     },
     onSuccess: () => {
-      setNote('')
-      queryClient.invalidateQueries({ queryKey: ['referral', id] })
-      showToast('Note added.')
+      setNote("");
+      queryClient.invalidateQueries({ queryKey: ["referral", id] });
+      showToast("Note added.");
     },
-  })
+  });
 
   const rewardMutation = useMutation({
     mutationFn: () =>
       createReward({
         referral_id: id,
-        reward_type: 'custom',
+        reward_type: "custom",
         reward_value: rewardValue,
-        trigger: 'manual',
-        status: 'earned',
+        trigger: "manual",
+        status: "earned",
       }),
     onSuccess: () => {
-      setRewardValue('')
-      queryClient.invalidateQueries({ queryKey: ['referral', id] })
-      showToast('Reward logged.')
+      setRewardValue("");
+      queryClient.invalidateQueries({ queryKey: ["referral", id] });
+      showToast("Reward logged.");
     },
-  })
+  });
 
-  if (isLoading) return <PageLoader label="Loading referral…" />
-  if (!referral) return <p>Referral not found.</p>
+  if (isLoading) return <PageLoader label="Loading referral…" />;
+  if (!referral) return <p>Referral not found.</p>;
 
   return (
     <div className="flex flex-col gap-6">
@@ -158,7 +159,7 @@ export function ReferralDetailPage() {
             {referral.lead_name}
           </h1>
           <p className="mt-1 text-sm text-[var(--color-text-muted)]">
-            {referral.lead_need || 'No stated need on file.'}
+            {referral.lead_need || "No stated need on file."}
           </p>
         </div>
         <Badge tone={STAGE_TONE[referral.stage]}>
@@ -176,7 +177,9 @@ export function ReferralDetailPage() {
               <div>
                 <dt className="text-[var(--color-text-faint)]">Referrer</dt>
                 <dd className="text-[var(--color-text)]">
-                  {referral.referrer_client?.name || referral.referrer_name || '—'}
+                  {referral.referrer_client?.name ||
+                    referral.referrer_name ||
+                    "—"}
                 </dd>
               </div>
               <div>
@@ -185,11 +188,15 @@ export function ReferralDetailPage() {
               </div>
               <div>
                 <dt className="text-[var(--color-text-faint)]">Lead email</dt>
-                <dd className="text-[var(--color-text)]">{referral.lead_email || '—'}</dd>
+                <dd className="text-[var(--color-text)]">
+                  {referral.lead_email || "—"}
+                </dd>
               </div>
               <div>
                 <dt className="text-[var(--color-text-faint)]">Lead phone</dt>
-                <dd className="text-[var(--color-text)]">{referral.lead_phone || '—'}</dd>
+                <dd className="text-[var(--color-text)]">
+                  {referral.lead_phone || "—"}
+                </dd>
               </div>
             </dl>
             {referral.message && (
@@ -227,10 +234,10 @@ export function ReferralDetailPage() {
                   <li key={event.id} className="flex gap-3 text-sm">
                     <span className="w-20 shrink-0 text-xs text-[var(--color-text-faint)]">
                       {new Date(event.created_at).toLocaleString(undefined, {
-                        month: 'short',
-                        day: 'numeric',
-                        hour: 'numeric',
-                        minute: '2-digit',
+                        month: "short",
+                        day: "numeric",
+                        hour: "numeric",
+                        minute: "2-digit",
                       })}
                     </span>
                     <span className="text-[var(--color-text)]">
@@ -269,7 +276,7 @@ export function ReferralDetailPage() {
               <ul className="mt-2 flex flex-col gap-2">
                 {referral.referral_rewards.map((r) => (
                   <li key={r.id} className="text-sm">
-                    <Badge tone="accent">{r.status}</Badge>{' '}
+                    <Badge tone="accent">{r.status}</Badge>{" "}
                     <span className="text-[var(--color-text-muted)]">
                       {r.reward_value || r.reward_type}
                     </span>
@@ -301,5 +308,5 @@ export function ReferralDetailPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

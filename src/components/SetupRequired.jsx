@@ -1,4 +1,4 @@
-import { Card } from './ui/Card'
+import { Card } from "./ui/Card";
 
 export function SetupRequired() {
   return (
@@ -9,25 +9,25 @@ export function SetupRequired() {
         </h1>
         <p className="mt-2 text-sm text-[var(--color-text-muted)]">
           ReferralFlow needs a Neon Postgres database and admin credentials to
-          run. Set{' '}
+          run. Set{" "}
           <code className="rounded bg-black/5 px-1.5 py-0.5 text-xs">
             DATABASE_URL
           </code>
-          ,{' '}
+          ,{" "}
           <code className="rounded bg-black/5 px-1.5 py-0.5 text-xs">
             SESSION_SECRET
           </code>
-          ,{' '}
+          ,{" "}
           <code className="rounded bg-black/5 px-1.5 py-0.5 text-xs">
             ADMIN_EMAIL
-          </code>{' '}
-          and{' '}
+          </code>{" "}
+          and{" "}
           <code className="rounded bg-black/5 px-1.5 py-0.5 text-xs">
             ADMIN_PASSWORD_HASH
-          </code>{' '}
+          </code>{" "}
           in your environment (see README) and restart.
         </p>
       </Card>
     </div>
-  )
+  );
 }

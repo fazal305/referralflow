@@ -1,17 +1,17 @@
-import clsx from 'clsx'
-import { useToastStore } from '../../stores/toastStore'
+import clsx from "clsx";
+import { useToastStore } from "../../stores/toastStore";
 
 const tones = {
-  success: 'bg-[var(--color-success-50)] text-[var(--color-success-700)]',
-  danger: 'bg-[var(--color-danger-50)] text-[var(--color-danger-700)]',
-  info: 'bg-[var(--color-info-50)] text-[var(--color-info-700)]',
-}
+  success: "bg-[var(--color-success-50)] text-[var(--color-success-700)]",
+  danger: "bg-[var(--color-danger-50)] text-[var(--color-danger-700)]",
+  info: "bg-[var(--color-info-50)] text-[var(--color-info-700)]",
+};
 
 export function ToastViewport() {
-  const toasts = useToastStore((s) => s.toasts)
-  const dismissToast = useToastStore((s) => s.dismissToast)
+  const toasts = useToastStore((s) => s.toasts);
+  const dismissToast = useToastStore((s) => s.dismissToast);
 
-  if (!toasts.length) return null
+  if (!toasts.length) return null;
 
   return (
     <div
@@ -24,7 +24,7 @@ export function ToastViewport() {
           key={toast.id}
           role="status"
           className={clsx(
-            'flex w-full max-w-sm items-center gap-3 rounded-[var(--radius-md)] px-4 py-3 text-sm font-medium shadow-[var(--shadow-md)]',
+            "flex w-full max-w-sm items-center gap-3 rounded-[var(--radius-md)] px-4 py-3 text-sm font-medium shadow-[var(--shadow-md)]",
             tones[toast.tone] || tones.success,
           )}
         >
@@ -40,5 +40,5 @@ export function ToastViewport() {
         </div>
       ))}
     </div>
-  )
+  );
 }

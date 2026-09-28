@@ -16,5 +16,5 @@ export function EmptyState({ title, description, action, icon }) {
       )}
       {action && <div className="mt-2">{action}</div>}
     </div>
-  )
+  );
 }

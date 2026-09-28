@@ -1,15 +1,19 @@
-import { useState } from 'react'
-import { Card } from '../components/ui/Card'
-import { WIN_MOMENT_TRIGGERS, BUSINESS_NAME, PUBLIC_APP_URL } from '../config/constants'
+import { useState } from "react";
+import { Card } from "../components/ui/Card";
+import {
+  WIN_MOMENT_TRIGGERS,
+  BUSINESS_NAME,
+  PUBLIC_APP_URL,
+} from "../config/constants";
 
 export function SettingsPage() {
   const [trigger, setTrigger] = useState(
-    () => localStorage.getItem('referralflow:win-moment-trigger') || '48h',
-  )
+    () => localStorage.getItem("referralflow:win-moment-trigger") || "48h",
+  );
 
   function handleChange(id) {
-    setTrigger(id)
-    localStorage.setItem('referralflow:win-moment-trigger', id)
+    setTrigger(id);
+    localStorage.setItem("referralflow:win-moment-trigger", id);
   }
 
   return (
@@ -28,8 +32,8 @@ export function SettingsPage() {
           Referral timing (Win Moment)
         </h2>
         <p className="mt-1 text-sm text-[var(--color-text-muted)]">
-          When should a referral request be suggested after a project is
-          marked completed?
+          When should a referral request be suggested after a project is marked
+          completed?
         </p>
         <fieldset className="mt-3 flex flex-col gap-2">
           <legend className="sr-only">Referral timing trigger</legend>
@@ -57,17 +61,17 @@ export function SettingsPage() {
           Public referral URL base
         </h2>
         <p className="mt-1 text-sm text-[var(--color-text-muted)]">
-          Referral links are generated as{' '}
+          Referral links are generated as{" "}
           <code className="rounded bg-black/5 px-1.5 py-0.5 text-xs">
             {PUBLIC_APP_URL}/r/CODE
           </code>
-          . Set{' '}
+          . Set{" "}
           <code className="rounded bg-black/5 px-1.5 py-0.5 text-xs">
             VITE_PUBLIC_APP_URL
-          </code>{' '}
+          </code>{" "}
           in your environment once you have a production domain.
         </p>
       </Card>
     </div>
-  )
+  );
 }

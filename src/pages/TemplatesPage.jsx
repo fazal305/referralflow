@@ -1,52 +1,52 @@
-import { useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   listTemplates,
   createTemplate,
   updateTemplate,
   deleteTemplate,
-} from '../services/templates'
-import { Card } from '../components/ui/Card'
-import { Button } from '../components/ui/Button'
-import { Input, Label, Select, Textarea } from '../components/ui/Input'
-import { PageLoader } from '../components/ui/Spinner'
-import { EmptyState } from '../components/ui/EmptyState'
-import { showToast } from '../stores/toastStore'
-import { TEMPLATE_CATEGORIES, TEMPLATE_VARIABLES } from '../config/constants'
+} from "../services/templates";
+import { Card } from "../components/ui/Card";
+import { Button } from "../components/ui/Button";
+import { Input, Label, Select, Textarea } from "../components/ui/Input";
+import { PageLoader } from "../components/ui/Spinner";
+import { EmptyState } from "../components/ui/EmptyState";
+import { showToast } from "../stores/toastStore";
+import { TEMPLATE_CATEGORIES, TEMPLATE_VARIABLES } from "../config/constants";
 
 const CATEGORY_LABELS = {
-  referral_request: 'Referral Request',
-  referral_received: 'Referral Received',
-  thank_you: 'Thank You',
-  lead_contacted: 'Lead Contacted',
-  proposal_sent: 'Proposal Sent',
-  deal_won: 'Deal Won',
-  deal_lost: 'Deal Lost',
-  follow_up: 'Follow-up',
-}
+  referral_request: "Referral Request",
+  referral_received: "Referral Received",
+  thank_you: "Thank You",
+  lead_contacted: "Lead Contacted",
+  proposal_sent: "Proposal Sent",
+  deal_won: "Deal Won",
+  deal_lost: "Deal Lost",
+  follow_up: "Follow-up",
+};
 
 function TemplateEditor({ template, onClose }) {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
   const [form, setForm] = useState(
     template || {
-      category: 'referral_request',
-      name: '',
-      channel: 'message',
-      body: '',
+      category: "referral_request",
+      name: "",
+      channel: "message",
+      body: "",
     },
-  )
-  const [error, setError] = useState(null)
+  );
+  const [error, setError] = useState(null);
 
   const mutation = useMutation({
     mutationFn: () =>
       template ? updateTemplate(template.id, form) : createTemplate(form),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['templates'] })
-      showToast(template ? 'Template updated.' : 'Template created.')
-      onClose()
+      queryClient.invalidateQueries({ queryKey: ["templates"] });
+      showToast(template ? "Template updated." : "Template created.");
+      onClose();
     },
     onError: (err) => setError(err.message),
-  })
+  });
 
   return (
     <div
@@ -61,7 +61,7 @@ function TemplateEditor({ template, onClose }) {
         aria-label="Edit template"
       >
         <h2 className="text-base font-semibold text-[var(--color-text)]">
-          {template ? 'Edit template' : 'New template'}
+          {template ? "Edit template" : "New template"}
         </h2>
 
         <div className="mt-4 flex flex-col gap-3">
@@ -110,7 +110,7 @@ function TemplateEditor({ template, onClose }) {
               onChange={(e) => setForm({ ...form, body: e.target.value })}
             />
             <p className="mt-1 text-xs text-[var(--color-text-faint)]">
-              Variables: {TEMPLATE_VARIABLES.map((v) => `{{${v}}}`).join(', ')}
+              Variables: {TEMPLATE_VARIABLES.map((v) => `{{${v}}}`).join(", ")}
             </p>
           </div>
 
@@ -128,47 +128,47 @@ function TemplateEditor({ template, onClose }) {
               type="button"
               onClick={() => {
                 if (!form.name.trim() || !form.body.trim()) {
-                  setError('Name and body are required.')
-                  return
+                  setError("Name and body are required.");
+                  return;
                 }
-                setError(null)
-                mutation.mutate()
+                setError(null);
+                mutation.mutate();
               }}
               disabled={mutation.isPending}
             >
-              {mutation.isPending ? 'Saving…' : 'Save template'}
+              {mutation.isPending ? "Saving…" : "Save template"}
             </Button>
           </div>
         </div>
       </Card>
     </div>
-  )
+  );
 }
 
 export function TemplatesPage() {
-  const queryClient = useQueryClient()
-  const [editing, setEditing] = useState(null)
-  const [creating, setCreating] = useState(false)
+  const queryClient = useQueryClient();
+  const [editing, setEditing] = useState(null);
+  const [creating, setCreating] = useState(false);
 
   const { data: templates, isLoading } = useQuery({
-    queryKey: ['templates'],
+    queryKey: ["templates"],
     queryFn: listTemplates,
-  })
+  });
 
   const deleteMutation = useMutation({
     mutationFn: deleteTemplate,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['templates'] })
-      showToast('Template deleted.')
+      queryClient.invalidateQueries({ queryKey: ["templates"] });
+      showToast("Template deleted.");
     },
-  })
+  });
 
-  if (isLoading) return <PageLoader label="Loading templates…" />
+  if (isLoading) return <PageLoader label="Loading templates…" />;
 
   const grouped = TEMPLATE_CATEGORIES.map((category) => ({
     category,
     items: templates?.filter((t) => t.category === category) || [],
-  }))
+  }));
 
   return (
     <div className="flex flex-col gap-6">
@@ -208,7 +208,11 @@ export function TemplatesPage() {
                         {t.body}
                       </p>
                       <div className="mt-3 flex gap-2">
-                        <Button size="sm" variant="secondary" onClick={() => setEditing(t)}>
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => setEditing(t)}
+                        >
                           Edit
                         </Button>
                         <Button
@@ -229,7 +233,9 @@ export function TemplatesPage() {
         <EmptyState
           title="No templates yet."
           description="Create reusable templates for referral requests, thank-yous, and follow-ups so you're never starting from a blank page."
-          action={<Button onClick={() => setCreating(true)}>New template</Button>}
+          action={
+            <Button onClick={() => setCreating(true)}>New template</Button>
+          }
         />
       )}
 
@@ -237,11 +243,11 @@ export function TemplatesPage() {
         <TemplateEditor
           template={editing}
           onClose={() => {
-            setEditing(null)
-            setCreating(false)
+            setEditing(null);
+            setCreating(false);
           }}
         />
       )}
     </div>
-  )
+  );
 }

@@ -44,10 +44,10 @@
 
   /* Typography */
   --font-sans:
-    'Karla', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    "Karla", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-heading:
-    'Manrope', 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --font-mono: ui-monospace, 'SFMono-Regular', Consolas, monospace;
+    "Manrope", "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", Consolas, monospace;
 
   /* Spacing scale */
   --space-1: 4px;
@@ -79,7 +79,7 @@
   --duration-slow: 320ms;
 }
 
-:root[data-theme='dark'] {
+:root[data-theme="dark"] {
   --color-bg: #16140f;
   --color-surface: #1f1c16;
   --color-surface-raised: #262219;

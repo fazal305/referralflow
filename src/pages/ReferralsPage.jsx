@@ -1,32 +1,32 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { listReferrals, updateReferralStage } from '../services/referrals'
-import { Card } from '../components/ui/Card'
-import { Input, Select } from '../components/ui/Input'
-import { PageLoader } from '../components/ui/Spinner'
-import { EmptyState } from '../components/ui/EmptyState'
-import { REFERRAL_STAGES } from '../config/constants'
-import { showToast } from '../stores/toastStore'
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { listReferrals, updateReferralStage } from "../services/referrals";
+import { Card } from "../components/ui/Card";
+import { Input, Select } from "../components/ui/Input";
+import { PageLoader } from "../components/ui/Spinner";
+import { EmptyState } from "../components/ui/EmptyState";
+import { REFERRAL_STAGES } from "../config/constants";
+import { showToast } from "../stores/toastStore";
 
 function currency(n) {
-  if (!n && n !== 0) return null
-  return new Intl.NumberFormat('en-PK', {
-    style: 'currency',
-    currency: 'PKR',
+  if (!n && n !== 0) return null;
+  return new Intl.NumberFormat("en-PK", {
+    style: "currency",
+    currency: "PKR",
     maximumFractionDigits: 0,
-  }).format(n)
+  }).format(n);
 }
 
 function ReferralCard({ referral }) {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
   const stageMutation = useMutation({
     mutationFn: (stage) => updateReferralStage(referral.id, stage),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['referrals'] })
-      showToast('Referral stage updated.')
+      queryClient.invalidateQueries({ queryKey: ["referrals"] });
+      showToast("Referral stage updated.");
     },
-  })
+  });
 
   return (
     <Card className="p-4">
@@ -64,19 +64,19 @@ function ReferralCard({ referral }) {
         ))}
       </Select>
     </Card>
-  )
+  );
 }
 
 export function ReferralsPage() {
-  const [search, setSearch] = useState('')
-  const [stageFilter, setStageFilter] = useState('')
+  const [search, setSearch] = useState("");
+  const [stageFilter, setStageFilter] = useState("");
 
   const { data: referrals, isLoading } = useQuery({
-    queryKey: ['referrals', search, stageFilter],
+    queryKey: ["referrals", search, stageFilter],
     queryFn: () => listReferrals({ search, stage: stageFilter || undefined }),
-  })
+  });
 
-  if (isLoading) return <PageLoader label="Loading pipeline…" />
+  if (isLoading) return <PageLoader label="Loading pipeline…" />;
 
   if (!referrals?.length && !search && !stageFilter) {
     return (
@@ -84,7 +84,7 @@ export function ReferralsPage() {
         title="No referrals yet."
         description="Referrals appear here once a client shares their referral link, or you add one manually from a client's profile."
       />
-    )
+    );
   }
 
   return (
@@ -131,5 +131,5 @@ export function ReferralsPage() {
         <EmptyState title="No referrals match your filters." />
       )}
     </div>
-  )
+  );
 }

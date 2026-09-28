@@ -1,51 +1,56 @@
-import { useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getClient, ensureReferralCode, updateClient } from '../services/clients'
-import { listTemplates, renderTemplate } from '../services/templates'
-import { PageLoader } from '../components/ui/Spinner'
-import { Card } from '../components/ui/Card'
-import { Button } from '../components/ui/Button'
-import { Badge } from '../components/ui/Badge'
-import { Select, Textarea, Label } from '../components/ui/Input'
-import { BUSINESS_NAME, PUBLIC_APP_URL } from '../config/constants'
-import { showToast } from '../stores/toastStore'
+import { useState } from "react";
+import { useParams, Link } from "react-router-dom";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  getClient,
+  ensureReferralCode,
+  updateClient,
+} from "../services/clients";
+import { listTemplates, renderTemplate } from "../services/templates";
+import { PageLoader } from "../components/ui/Spinner";
+import { Card } from "../components/ui/Card";
+import { Button } from "../components/ui/Button";
+import { Badge } from "../components/ui/Badge";
+import { Select, Textarea, Label } from "../components/ui/Input";
+import { BUSINESS_NAME, PUBLIC_APP_URL } from "../config/constants";
+import { showToast } from "../stores/toastStore";
 
 function useCopy() {
-  const [copied, setCopied] = useState(null)
+  const [copied, setCopied] = useState(null);
   async function copy(text, key) {
-    await navigator.clipboard.writeText(text)
-    setCopied(key)
-    setTimeout(() => setCopied((c) => (c === key ? null : c)), 1500)
+    await navigator.clipboard.writeText(text);
+    setCopied(key);
+    setTimeout(() => setCopied((c) => (c === key ? null : c)), 1500);
   }
-  return { copy, copied }
+  return { copy, copied };
 }
 
 function ReferralRequestBuilder({ client }) {
   const { data: templates } = useQuery({
-    queryKey: ['templates'],
+    queryKey: ["templates"],
     queryFn: listTemplates,
-  })
-  const requestTemplates = templates?.filter((t) => t.category === 'referral_request') || []
-  const [templateId, setTemplateId] = useState('')
-  const [customBody, setCustomBody] = useState('')
-  const { copy, copied } = useCopy()
+  });
+  const requestTemplates =
+    templates?.filter((t) => t.category === "referral_request") || [];
+  const [templateId, setTemplateId] = useState("");
+  const [customBody, setCustomBody] = useState("");
+  const { copy, copied } = useCopy();
 
-  const activeTemplate = requestTemplates.find((t) => t.id === templateId)
+  const activeTemplate = requestTemplates.find((t) => t.id === templateId);
   const referralLink = client.referral_codes?.[0]
     ? `${PUBLIC_APP_URL}/r/${client.referral_codes[0].code}`
-    : null
+    : null;
 
   const baseBody =
     customBody ||
     activeTemplate?.body ||
-    `Hey {{clientName}},\n\nI'm glad we were able to get your project delivered successfully. I'm currently taking on a few new projects — if you know someone who could use similar work, I'd really appreciate an introduction.\n\nYou can share this link with them: {{referralCode}}\n\nThanks so much,\n{{businessName}}`
+    `Hey {{clientName}},\n\nI'm glad we were able to get your project delivered successfully. I'm currently taking on a few new projects — if you know someone who could use similar work, I'd really appreciate an introduction.\n\nYou can share this link with them: {{referralCode}}\n\nThanks so much,\n{{businessName}}`;
 
   const rendered = renderTemplate(baseBody, {
     clientName: client.name,
     businessName: BUSINESS_NAME,
-    referralCode: referralLink || '(generate a referral link first)',
-  })
+    referralCode: referralLink || "(generate a referral link first)",
+  });
 
   return (
     <Card className="p-5">
@@ -83,9 +88,9 @@ function ReferralRequestBuilder({ client }) {
         <Button
           size="sm"
           variant="secondary"
-          onClick={() => copy(customBody || rendered, 'message')}
+          onClick={() => copy(customBody || rendered, "message")}
         >
-          {copied === 'message' ? 'Copied!' : 'Copy message'}
+          {copied === "message" ? "Copied!" : "Copy message"}
         </Button>
         <Button
           size="sm"
@@ -93,7 +98,7 @@ function ReferralRequestBuilder({ client }) {
           onClick={() =>
             window.open(
               `https://wa.me/?text=${encodeURIComponent(customBody || rendered)}`,
-              '_blank',
+              "_blank",
             )
           }
         >
@@ -104,10 +109,10 @@ function ReferralRequestBuilder({ client }) {
           variant="secondary"
           onClick={() =>
             window.open(
-              `mailto:${client.email || ''}?subject=${encodeURIComponent(
-                'Quick favor?',
+              `mailto:${client.email || ""}?subject=${encodeURIComponent(
+                "Quick favor?",
               )}&body=${encodeURIComponent(customBody || rendered)}`,
-              '_blank',
+              "_blank",
             )
           }
         >
@@ -117,56 +122,62 @@ function ReferralRequestBuilder({ client }) {
           <Button
             size="sm"
             variant="secondary"
-            onClick={() => copy(referralLink, 'link')}
+            onClick={() => copy(referralLink, "link")}
           >
-            {copied === 'link' ? 'Link copied!' : 'Copy referral link'}
+            {copied === "link" ? "Link copied!" : "Copy referral link"}
           </Button>
         )}
       </div>
     </Card>
-  )
+  );
 }
 
 export function ClientDetailPage() {
-  const { id } = useParams()
-  const queryClient = useQueryClient()
+  const { id } = useParams();
+  const queryClient = useQueryClient();
 
   const { data: client, isLoading } = useQuery({
-    queryKey: ['client', id],
+    queryKey: ["client", id],
     queryFn: () => getClient(id),
-  })
+  });
 
   const generateCode = useMutation({
     mutationFn: () => ensureReferralCode(id, client.name),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['client', id] })
-      showToast('Referral link generated.')
+      queryClient.invalidateQueries({ queryKey: ["client", id] });
+      showToast("Referral link generated.");
     },
-  })
+  });
 
   const toggleEligible = useMutation({
     mutationFn: (value) => updateClient(id, { referral_eligible: value }),
     onSuccess: (_, value) => {
-      queryClient.invalidateQueries({ queryKey: ['client', id] })
-      showToast(value ? 'Client marked eligible.' : 'Client marked ineligible.')
+      queryClient.invalidateQueries({ queryKey: ["client", id] });
+      showToast(
+        value ? "Client marked eligible." : "Client marked ineligible.",
+      );
     },
-  })
+  });
 
-  if (isLoading) return <PageLoader label="Loading client…" />
-  if (!client) return <p>Client not found.</p>
+  if (isLoading) return <PageLoader label="Loading client…" />;
+  if (!client) return <p>Client not found.</p>;
 
   const referralLink = client.referral_codes?.[0]
     ? `${PUBLIC_APP_URL}/r/${client.referral_codes[0].code}`
-    : null
+    : null;
 
   const successfulReferrals =
-    client.referrals?.filter((r) => r.stage === 'won').length || 0
+    client.referrals?.filter((r) => r.stage === "won").length || 0;
   const pendingReferrals =
-    client.referrals?.filter((r) => !['won', 'lost'].includes(r.stage)).length || 0
+    client.referrals?.filter((r) => !["won", "lost"].includes(r.stage))
+      .length || 0;
 
   return (
     <div className="flex flex-col gap-6">
-      <Link to="/clients" className="text-sm text-[var(--color-text-muted)] hover:underline">
+      <Link
+        to="/clients"
+        className="text-sm text-[var(--color-text-muted)] hover:underline"
+      >
         ← Back to clients
       </Link>
 
@@ -176,31 +187,33 @@ export function ClientDetailPage() {
             {client.name}
           </h1>
           {client.company && (
-            <p className="text-sm text-[var(--color-text-muted)]">{client.company}</p>
+            <p className="text-sm text-[var(--color-text-muted)]">
+              {client.company}
+            </p>
           )}
         </div>
         <div className="flex items-center gap-2">
-          <Badge tone={client.referral_eligible ? 'success' : 'neutral'}>
-            {client.referral_eligible ? 'Referral Eligible' : 'Not Eligible'}
+          <Badge tone={client.referral_eligible ? "success" : "neutral"}>
+            {client.referral_eligible ? "Referral Eligible" : "Not Eligible"}
           </Badge>
           <Button
             size="sm"
             variant="secondary"
             onClick={() => toggleEligible.mutate(!client.referral_eligible)}
           >
-            {client.referral_eligible ? 'Mark ineligible' : 'Mark eligible'}
+            {client.referral_eligible ? "Mark ineligible" : "Mark eligible"}
           </Button>
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         {[
-          { label: 'Referrals', value: client.referrals?.length || 0 },
-          { label: 'Successful', value: successfulReferrals },
-          { label: 'Pending', value: pendingReferrals },
+          { label: "Referrals", value: client.referrals?.length || 0 },
+          { label: "Successful", value: successfulReferrals },
+          { label: "Pending", value: pendingReferrals },
           {
-            label: 'Contact',
-            value: client.preferred_contact_method || '—',
+            label: "Contact",
+            value: client.preferred_contact_method || "—",
           },
         ].map((s) => (
           <Card key={s.label} className="p-4">
@@ -232,7 +245,9 @@ export function ClientDetailPage() {
               onClick={() => generateCode.mutate()}
               disabled={generateCode.isPending}
             >
-              {generateCode.isPending ? 'Generating…' : 'Generate referral link'}
+              {generateCode.isPending
+                ? "Generating…"
+                : "Generate referral link"}
             </Button>
           </div>
         )}
@@ -242,12 +257,14 @@ export function ClientDetailPage() {
 
       {client.notes && (
         <Card className="p-5">
-          <h2 className="text-sm font-semibold text-[var(--color-text)]">Notes</h2>
+          <h2 className="text-sm font-semibold text-[var(--color-text)]">
+            Notes
+          </h2>
           <p className="mt-2 whitespace-pre-wrap text-sm text-[var(--color-text-muted)]">
             {client.notes}
           </p>
         </Card>
       )}
     </div>
-  )
+  );
 }

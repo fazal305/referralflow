@@ -1,28 +1,28 @@
-import { useState } from 'react'
-import { useAuthStore } from '../../stores/authStore'
-import { Button } from '../../components/ui/Button'
-import { Input, Label } from '../../components/ui/Input'
-import { Card } from '../../components/ui/Card'
-import { APP_NAME } from '../../config/constants'
+import { useState } from "react";
+import { useAuthStore } from "../../stores/authStore";
+import { Button } from "../../components/ui/Button";
+import { Input, Label } from "../../components/ui/Input";
+import { Card } from "../../components/ui/Card";
+import { APP_NAME } from "../../config/constants";
 
 export function LoginPage() {
-  const signIn = useAuthStore((s) => s.signIn)
-  const sessionExpired = useAuthStore((s) => s.sessionExpired)
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState(null)
-  const [submitting, setSubmitting] = useState(false)
+  const signIn = useAuthStore((s) => s.signIn);
+  const sessionExpired = useAuthStore((s) => s.sessionExpired);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
 
   async function handleSubmit(e) {
-    e.preventDefault()
-    setError(null)
-    setSubmitting(true)
+    e.preventDefault();
+    setError(null);
+    setSubmitting(true);
     try {
-      await signIn(email, password)
+      await signIn(email, password);
     } catch (err) {
-      setError(err.message || 'Could not sign in.')
+      setError(err.message || "Could not sign in.");
     } finally {
-      setSubmitting(false)
+      setSubmitting(false);
     }
   }
 
@@ -76,10 +76,10 @@ export function LoginPage() {
           )}
 
           <Button type="submit" disabled={submitting} className="mt-2 w-full">
-            {submitting ? 'Signing in…' : 'Sign in'}
+            {submitting ? "Signing in…" : "Sign in"}
           </Button>
         </form>
       </Card>
     </div>
-  )
+  );
 }

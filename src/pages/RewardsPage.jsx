@@ -1,36 +1,37 @@
-import { useEffect, useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getRewardSettings, saveRewardSettings } from '../services/rewards'
-import { Card } from '../components/ui/Card'
-import { Button } from '../components/ui/Button'
-import { Select, Input, Label } from '../components/ui/Input'
-import { PageLoader } from '../components/ui/Spinner'
-import { REWARD_TRIGGERS, REWARD_TYPES } from '../config/constants'
+import { useEffect, useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { getRewardSettings, saveRewardSettings } from "../services/rewards";
+import { Card } from "../components/ui/Card";
+import { Button } from "../components/ui/Button";
+import { Select, Input, Label } from "../components/ui/Input";
+import { PageLoader } from "../components/ui/Spinner";
+import { REWARD_TRIGGERS, REWARD_TYPES } from "../config/constants";
 
 export function RewardsPage() {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
   const { data: settings, isLoading } = useQuery({
-    queryKey: ['reward-settings'],
+    queryKey: ["reward-settings"],
     queryFn: getRewardSettings,
-  })
+  });
 
-  const [form, setForm] = useState(null)
-  const [saved, setSaved] = useState(false)
+  const [form, setForm] = useState(null);
+  const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    if (settings) setForm(settings)
-  }, [settings])
+    if (settings) setForm(settings);
+  }, [settings]);
 
   const mutation = useMutation({
     mutationFn: () => saveRewardSettings(form),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['reward-settings'] })
-      setSaved(true)
-      setTimeout(() => setSaved(false), 1500)
+      queryClient.invalidateQueries({ queryKey: ["reward-settings"] });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 1500);
     },
-  })
+  });
 
-  if (isLoading || !form) return <PageLoader label="Loading reward settings…" />
+  if (isLoading || !form)
+    return <PageLoader label="Loading reward settings…" />;
 
   return (
     <div className="flex max-w-xl flex-col gap-6">
@@ -51,7 +52,9 @@ export function RewardsPage() {
             <Select
               id="reward-type"
               value={form.reward_type}
-              onChange={(e) => setForm({ ...form, reward_type: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, reward_type: e.target.value })
+              }
             >
               {REWARD_TYPES.map((r) => (
                 <option key={r.id} value={r.id}>
@@ -61,20 +64,24 @@ export function RewardsPage() {
             </Select>
           </div>
 
-          {form.reward_type !== 'none' && (
+          {form.reward_type !== "none" && (
             <div>
               <Label htmlFor="reward-value">
-                {form.reward_type === 'percentage'
-                  ? 'Percentage value'
-                  : 'Reward value / description'}
+                {form.reward_type === "percentage"
+                  ? "Percentage value"
+                  : "Reward value / description"}
               </Label>
               <Input
                 id="reward-value"
                 placeholder={
-                  form.reward_type === 'percentage' ? 'e.g. 10' : 'e.g. Rs. 5,000 credit'
+                  form.reward_type === "percentage"
+                    ? "e.g. 10"
+                    : "e.g. Rs. 5,000 credit"
                 }
-                value={form.reward_value || ''}
-                onChange={(e) => setForm({ ...form, reward_value: e.target.value })}
+                value={form.reward_value || ""}
+                onChange={(e) =>
+                  setForm({ ...form, reward_value: e.target.value })
+                }
               />
             </div>
           )}
@@ -99,10 +106,10 @@ export function RewardsPage() {
             disabled={mutation.isPending}
             className="self-start"
           >
-            {mutation.isPending ? 'Saving…' : saved ? 'Saved' : 'Save settings'}
+            {mutation.isPending ? "Saving…" : saved ? "Saved" : "Save settings"}
           </Button>
         </div>
       </Card>
     </div>
-  )
+  );
 }

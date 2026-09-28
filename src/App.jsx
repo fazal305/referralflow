@@ -1,50 +1,50 @@
-import { useEffect, useState } from 'react'
-import { Routes, Route, Navigate } from 'react-router-dom'
-import { useAuthStore } from './stores/authStore'
-import { SetupRequired } from './components/SetupRequired'
-import { AppShell } from './components/AppShell'
-import { PageLoader } from './components/ui/Spinner'
-import { ToastViewport } from './components/ui/Toast'
-import { LoginPage } from './features/auth/LoginPage'
-import { DashboardPage } from './pages/DashboardPage'
-import { ClientsPage } from './pages/ClientsPage'
-import { ClientDetailPage } from './pages/ClientDetailPage'
-import { ReferralsPage } from './pages/ReferralsPage'
-import { ReferralDetailPage } from './pages/ReferralDetailPage'
-import { TemplatesPage } from './pages/TemplatesPage'
-import { RewardsPage } from './pages/RewardsPage'
-import { SettingsPage } from './pages/SettingsPage'
-import { PublicReferralPage } from './pages/PublicReferralPage'
-import { NotFoundPage } from './pages/NotFoundPage'
+import { useEffect, useState } from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { useAuthStore } from "./stores/authStore";
+import { SetupRequired } from "./components/SetupRequired";
+import { AppShell } from "./components/AppShell";
+import { PageLoader } from "./components/ui/Spinner";
+import { ToastViewport } from "./components/ui/Toast";
+import { LoginPage } from "./features/auth/LoginPage";
+import { DashboardPage } from "./pages/DashboardPage";
+import { ClientsPage } from "./pages/ClientsPage";
+import { ClientDetailPage } from "./pages/ClientDetailPage";
+import { ReferralsPage } from "./pages/ReferralsPage";
+import { ReferralDetailPage } from "./pages/ReferralDetailPage";
+import { TemplatesPage } from "./pages/TemplatesPage";
+import { RewardsPage } from "./pages/RewardsPage";
+import { SettingsPage } from "./pages/SettingsPage";
+import { PublicReferralPage } from "./pages/PublicReferralPage";
+import { NotFoundPage } from "./pages/NotFoundPage";
 
 function RequireAuth({ children }) {
-  const status = useAuthStore((s) => s.status)
-  if (status === 'loading') return <PageLoader label="Loading…" />
-  if (status === 'unauthenticated') return <Navigate to="/login" replace />
-  return children
+  const status = useAuthStore((s) => s.status);
+  if (status === "loading") return <PageLoader label="Loading…" />;
+  if (status === "unauthenticated") return <Navigate to="/login" replace />;
+  return children;
 }
 
 function useBackendHealth() {
-  const [health, setHealth] = useState('checking') // 'checking' | 'ok' | 'unconfigured'
+  const [health, setHealth] = useState("checking"); // 'checking' | 'ok' | 'unconfigured'
 
   useEffect(() => {
-    fetch('/api/health')
+    fetch("/api/health")
       .then((res) => res.json())
-      .then((data) => setHealth(data.ok ? 'ok' : 'unconfigured'))
-      .catch(() => setHealth('unconfigured'))
-  }, [])
+      .then((data) => setHealth(data.ok ? "ok" : "unconfigured"))
+      .catch(() => setHealth("unconfigured"));
+  }, []);
 
-  return health
+  return health;
 }
 
 export default function App() {
-  const init = useAuthStore((s) => s.init)
-  const status = useAuthStore((s) => s.status)
-  const health = useBackendHealth()
+  const init = useAuthStore((s) => s.init);
+  const status = useAuthStore((s) => s.status);
+  const health = useBackendHealth();
 
   useEffect(() => {
-    if (health === 'ok') init()
-  }, [health, init])
+    if (health === "ok") init();
+  }, [health, init]);
 
   return (
     <>
@@ -52,16 +52,20 @@ export default function App() {
         {/* Public route — never requires auth, never exposes private client data. */}
         <Route path="/r/:code" element={<PublicReferralPage />} />
 
-        {health === 'checking' ? (
+        {health === "checking" ? (
           <Route path="*" element={<PageLoader label="Starting up…" />} />
-        ) : health === 'unconfigured' ? (
+        ) : health === "unconfigured" ? (
           <Route path="*" element={<SetupRequired />} />
         ) : (
           <>
             <Route
               path="/login"
               element={
-                status === 'authenticated' ? <Navigate to="/" replace /> : <LoginPage />
+                status === "authenticated" ? (
+                  <Navigate to="/" replace />
+                ) : (
+                  <LoginPage />
+                )
               }
             />
             <Route
@@ -87,5 +91,5 @@ export default function App() {
       </Routes>
       <ToastViewport />
     </>
-  )
+  );
 }

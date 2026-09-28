@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query'
-import { Link } from 'react-router-dom'
+import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
 import {
   ResponsiveContainer,
   BarChart,
@@ -10,56 +10,60 @@ import {
   Tooltip,
   LineChart,
   Line,
-} from 'recharts'
-import { apiGet } from '../services/apiClient'
-import { listOpenTasks } from '../services/tasks'
-import { Card } from '../components/ui/Card'
-import { Button } from '../components/ui/Button'
-import { PageLoader } from '../components/ui/Spinner'
-import { EmptyState } from '../components/ui/EmptyState'
-import { REFERRAL_STAGES } from '../config/constants'
+} from "recharts";
+import { apiGet } from "../services/apiClient";
+import { listOpenTasks } from "../services/tasks";
+import { Card } from "../components/ui/Card";
+import { Button } from "../components/ui/Button";
+import { PageLoader } from "../components/ui/Spinner";
+import { EmptyState } from "../components/ui/EmptyState";
+import { REFERRAL_STAGES } from "../config/constants";
 
 function buildMonthlySeries(referrals) {
-  const now = new Date()
+  const now = new Date();
   const months = Array.from({ length: 6 }, (_, i) => {
-    const d = new Date(now.getFullYear(), now.getMonth() - (5 - i), 1)
-    return { key: `${d.getFullYear()}-${d.getMonth()}`, label: d.toLocaleDateString(undefined, { month: 'short' }), count: 0 }
-  })
+    const d = new Date(now.getFullYear(), now.getMonth() - (5 - i), 1);
+    return {
+      key: `${d.getFullYear()}-${d.getMonth()}`,
+      label: d.toLocaleDateString(undefined, { month: "short" }),
+      count: 0,
+    };
+  });
   referrals.forEach((r) => {
-    const d = new Date(r.created_at)
-    const key = `${d.getFullYear()}-${d.getMonth()}`
-    const bucket = months.find((m) => m.key === key)
-    if (bucket) bucket.count += 1
-  })
-  return months
+    const d = new Date(r.created_at);
+    const key = `${d.getFullYear()}-${d.getMonth()}`;
+    const bucket = months.find((m) => m.key === key);
+    if (bucket) bucket.count += 1;
+  });
+  return months;
 }
 
 function fetchDashboardData() {
-  return apiGet('/dashboard')
+  return apiGet("/dashboard");
 }
 
 function currency(n) {
-  if (!n && n !== 0) return '—'
-  return new Intl.NumberFormat('en-PK', {
-    style: 'currency',
-    currency: 'PKR',
+  if (!n && n !== 0) return "—";
+  return new Intl.NumberFormat("en-PK", {
+    style: "currency",
+    currency: "PKR",
     maximumFractionDigits: 0,
-  }).format(n)
+  }).format(n);
 }
 
 export function DashboardPage() {
   const { data: referrals, isLoading } = useQuery({
-    queryKey: ['dashboard-referrals'],
+    queryKey: ["dashboard-referrals"],
     queryFn: fetchDashboardData,
-  })
+  });
   const { data: tasks } = useQuery({
-    queryKey: ['open-tasks'],
+    queryKey: ["open-tasks"],
     queryFn: listOpenTasks,
-  })
+  });
 
-  if (isLoading) return <PageLoader label="Loading dashboard…" />
+  if (isLoading) return <PageLoader label="Loading dashboard…" />;
 
-  const total = referrals?.length || 0
+  const total = referrals?.length || 0;
 
   if (total === 0) {
     return (
@@ -72,29 +76,32 @@ export function DashboardPage() {
           </Button>
         }
       />
-    )
+    );
   }
 
-  const pending = referrals.filter((r) => r.stage === 'new').length
-  const qualified = referrals.filter((r) => r.stage === 'qualified').length
-  const won = referrals.filter((r) => r.stage === 'won')
-  const lost = referrals.filter((r) => r.stage === 'lost').length
-  const conversionRate = total > 0 ? Math.round((won.length / total) * 100) : 0
+  const pending = referrals.filter((r) => r.stage === "new").length;
+  const qualified = referrals.filter((r) => r.stage === "qualified").length;
+  const won = referrals.filter((r) => r.stage === "won");
+  const lost = referrals.filter((r) => r.stage === "lost").length;
+  const conversionRate = total > 0 ? Math.round((won.length / total) * 100) : 0;
   const pipelineValue = referrals
-    .filter((r) => !['won', 'lost'].includes(r.stage))
-    .reduce((sum, r) => sum + (Number(r.potential_value) || 0), 0)
-  const revenue = won.reduce((sum, r) => sum + (Number(r.actual_value) || 0), 0)
+    .filter((r) => !["won", "lost"].includes(r.stage))
+    .reduce((sum, r) => sum + (Number(r.potential_value) || 0), 0);
+  const revenue = won.reduce(
+    (sum, r) => sum + (Number(r.actual_value) || 0),
+    0,
+  );
 
   const stats = [
-    { label: 'Total Referrals', value: total },
-    { label: 'Pending Introductions', value: pending },
-    { label: 'Qualified Leads', value: qualified },
-    { label: 'Won Referrals', value: won.length },
-    { label: 'Conversion Rate', value: `${conversionRate}%` },
-    { label: 'Pipeline Value', value: currency(pipelineValue) },
-    { label: 'Revenue From Referrals', value: currency(revenue) },
-    { label: 'Lost', value: lost },
-  ]
+    { label: "Total Referrals", value: total },
+    { label: "Pending Introductions", value: pending },
+    { label: "Qualified Leads", value: qualified },
+    { label: "Won Referrals", value: won.length },
+    { label: "Conversion Rate", value: `${conversionRate}%` },
+    { label: "Pipeline Value", value: currency(pipelineValue) },
+    { label: "Revenue From Referrals", value: currency(revenue) },
+    { label: "Lost", value: lost },
+  ];
 
   return (
     <div className="flex flex-col gap-8">
@@ -161,24 +168,35 @@ export function DashboardPage() {
                 }))}
                 margin={{ left: -20 }}
               >
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="var(--color-border)"
+                  vertical={false}
+                />
                 <XAxis
                   dataKey="label"
-                  tick={{ fontSize: 11, fill: 'var(--color-text-faint)' }}
+                  tick={{ fontSize: 11, fill: "var(--color-text-faint)" }}
                   interval={0}
                   angle={-25}
                   textAnchor="end"
                   height={50}
                 />
-                <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: 'var(--color-text-faint)' }} />
+                <YAxis
+                  allowDecimals={false}
+                  tick={{ fontSize: 11, fill: "var(--color-text-faint)" }}
+                />
                 <Tooltip
                   contentStyle={{
                     fontSize: 12,
                     borderRadius: 8,
-                    border: '1px solid var(--color-border)',
+                    border: "1px solid var(--color-border)",
                   }}
                 />
-                <Bar dataKey="count" fill="var(--color-accent-500)" radius={[4, 4, 0, 0]} />
+                <Bar
+                  dataKey="count"
+                  fill="var(--color-accent-500)"
+                  radius={[4, 4, 0, 0]}
+                />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -191,15 +209,28 @@ export function DashboardPage() {
         </h2>
         <div className="mt-3 h-48">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={buildMonthlySeries(referrals)} margin={{ left: -20 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
-              <XAxis dataKey="label" tick={{ fontSize: 11, fill: 'var(--color-text-faint)' }} />
-              <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: 'var(--color-text-faint)' }} />
+            <LineChart
+              data={buildMonthlySeries(referrals)}
+              margin={{ left: -20 }}
+            >
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="var(--color-border)"
+                vertical={false}
+              />
+              <XAxis
+                dataKey="label"
+                tick={{ fontSize: 11, fill: "var(--color-text-faint)" }}
+              />
+              <YAxis
+                allowDecimals={false}
+                tick={{ fontSize: 11, fill: "var(--color-text-faint)" }}
+              />
               <Tooltip
                 contentStyle={{
                   fontSize: 12,
                   borderRadius: 8,
-                  border: '1px solid var(--color-border)',
+                  border: "1px solid var(--color-border)",
                 }}
               />
               <Line
@@ -214,5 +245,5 @@ export function DashboardPage() {
         </div>
       </Card>
     </div>
-  )
+  );
 }
