@@ -123,3 +123,11 @@ To change them:
 - Recharts adds meaningful bundle weight (~200kB gzipped total); code-splitting the dashboard chart bundle is a reasonable follow-up if load time becomes a concern.
 - Demo/seed data was intentionally not added — the app ships empty, per project decision. (A UI smoke test was run against production during development and fully cleaned up afterward — the database is empty and ready for real data.)
 - Single admin user by design — there's no multi-user/role system, matching the "just me logging in" requirement.
+
+## License
+
+Free for personal, educational, and noncommercial use under the [PolyForm Noncommercial License 1.0.0](LICENSE).
+
+Commercial use requires a paid commercial license. Contact fazalabbas2002@gmail.com.
+
+Versions up to and including `last-mit` were released under the MIT License and remain available under MIT.
