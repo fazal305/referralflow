@@ -1,5 +1,16 @@
 {
   "routes": [
+    {
+      "src": "/(.*)",
+      "headers": {
+        "Strict-Transport-Security": "max-age=63072000",
+        "X-Content-Type-Options": "nosniff",
+        "X-Frame-Options": "DENY",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "Permissions-Policy": "camera=(), microphone=(), geolocation=()"
+      },
+      "continue": true
+    },
     { "src": "/api/clients/(.*)", "dest": "/api/clients?match=$1" },
     { "src": "/api/referrals/(.*)", "dest": "/api/referrals?match=$1" },
     { "src": "/api/templates/(.*)", "dest": "/api/templates?match=$1" },
@@ -9,17 +20,5 @@
     { "src": "/api/public/(.*)", "dest": "/api/public?match=$1" },
     { "handle": "filesystem" },
     { "src": "/(.*)", "dest": "/index.html" }
-  ],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        { "key": "Strict-Transport-Security", "value": "max-age=63072000" },
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "X-Frame-Options", "value": "DENY" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
-        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" }
-      ]
-    }
   ]
 }
